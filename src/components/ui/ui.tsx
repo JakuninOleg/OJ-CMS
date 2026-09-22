@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
 import type { DocumentStatus } from '@/lib/demo-data'
+import { OJLogo } from '@/components/brand/oj-logo'
 import styles from './ui.module.css'
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -116,7 +117,7 @@ export function PageHeader({ eyebrow, title, description, actions }: { eyebrow?:
 export function EmptyState({ title, description, action }: { title: string; description: string; action?: ReactNode }) {
   return (
     <div className={styles.empty}>
-      <span className={styles.emptyMark} aria-hidden="true">OJ</span>
+      <OJLogo compact />
       <h2>{title}</h2>
       <p>{description}</p>
       {action}

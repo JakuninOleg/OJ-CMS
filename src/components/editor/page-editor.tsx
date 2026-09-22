@@ -163,11 +163,6 @@ export function PageEditor({ pageId }: { pageId: string }) {
         </div>
       </header>
 
-      <div className={styles.demoScenario}>
-        <label><input type="checkbox" checked={simulateFailure} onChange={(event) => setSimulateFailure(event.target.checked)} /> Сымитировать ошибку сохранения</label>
-        <span>Элемент доступен только в прототипе.</span>
-      </div>
-
       {displayNotice ? <Notice tone={displayNotice.tone} title={displayNotice.title} live>{displayNotice.detail}</Notice> : null}
       {Object.keys(errors).length ? <div className={styles.errorSummary} role="alert"><Warning aria-hidden="true" /><div><strong>Проверьте форму</strong><span>{Object.keys(errors).length} поля требуют внимания.</span></div></div> : null}
 
@@ -212,9 +207,14 @@ export function PageEditor({ pageId }: { pageId: string }) {
         <aside className={styles.sideColumn} aria-label="Публикация и поисковая выдача">
           <section className={styles.sidePanel}><h2>Публикация</h2><dl><div><dt>Статус</dt><dd>{page?.status === 'published' ? 'Опубликовано' : page?.status === 'changed' ? 'Есть изменения' : 'Черновик'}</dd></div><div><dt>Автор</dt><dd>{page?.author ?? 'Олег Якунин'}</dd></div><div><dt>Изменено</dt><dd>{page?.updatedAt ?? 'Ещё не сохранено'}</dd></div></dl></section>
           <section className={styles.sidePanel}><h2>Поисковая выдача</h2><Textarea id="seoDescription" label="Описание" hint="Рекомендуемая длина — до 160 символов." maxLength={160} value={form.seoDescription} onChange={(event) => setForm({ ...form, seoDescription: event.target.value })} rows={5} /><span className={styles.counter}>{form.seoDescription.length} / 160</span></section>
-          <section className={styles.sidePanel}><h2>История версий</h2><p>В Payload здесь появятся версии документа с автором, датой и безопасным восстановлением.</p><Button variant="quiet" disabled>Открыть историю</Button></section>
+          <section className={styles.sidePanel}><h2>История версий</h2><p>В демонстрации доступны текущий черновик и опубликованная версия. История изменений пока недоступна.</p></section>
         </aside>
       </div>
+
+      <details className={styles.demoScenario}>
+        <summary>Демо-сценарии</summary>
+        <label><input type="checkbox" checked={simulateFailure} onChange={(event) => setSimulateFailure(event.target.checked)} /> Сымитировать ошибку сохранения</label>
+      </details>
 
       {mediaOpen ? <MediaPicker open onClose={() => setMediaOpen(false)} selectedId={form.content.mediaId} onSelect={(id) => { updateContent('mediaId', id); setMediaOpen(false) }} /> : null}
 

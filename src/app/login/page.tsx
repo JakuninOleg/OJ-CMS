@@ -4,6 +4,7 @@ import { ArrowRight, Eye, EyeSlash } from '@phosphor-icons/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Button, Field, Notice } from '@/components/ui/ui'
+import { OJLogo } from '@/components/brand/oj-logo'
 import styles from './login.module.css'
 
 export default function LoginPage() {
@@ -29,13 +30,13 @@ export default function LoginPage() {
   return (
     <main className={styles.page}>
       <section className={styles.brandPanel}>
-        <span className={styles.mark}>OJ</span>
-        <div><p>Content workspace</p><h1>Управление сайтом без лишней сложности.</h1></div>
+        <OJLogo />
+        <div><p>Хорошие сайты делают большие дела.</p><h1>Управление сайтом без лишней сложности.</h1></div>
         <footer><span>OJ CMS</span><span>Powered by Payload</span></footer>
       </section>
       <section className={styles.formPanel}>
         <form className={styles.form} action="/admin" method="get" onSubmit={(event) => void submit(event)} noValidate>
-          <header><span className={styles.smallMark}>OJ</span><div><h2>Войти в OJ CMS</h2><p>Используйте рабочую учётную запись.</p></div></header>
+          <header><span className={styles.smallMark}><OJLogo compact /></span><div><h2>Войти в OJ CMS</h2><p>Ваш сайт. Ваше рабочее пространство.</p></div></header>
           {error ? <Notice tone="error" title="Не удалось войти">{error}</Notice> : null}
           <Field id="login-email" type="email" autoComplete="username" label="Электронная почта" value={email} onChange={(event) => setEmail(event.target.value)} />
           <div className={styles.passwordField}>
@@ -43,7 +44,7 @@ export default function LoginPage() {
             <button type="button" onClick={() => setShowPassword((value) => !value)} aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}>{showPassword ? <EyeSlash /> : <Eye />}</button>
           </div>
           <Button type="submit" disabled={loading} icon={<ArrowRight />}>{loading ? 'Входим…' : 'Войти'}</Button>
-          <p className={styles.demo}>Демо-доступ уже заполнен. В production вход будет обрабатывать Payload Auth.</p>
+          <p className={styles.demo}>Демо-доступ уже заполнен. Нажмите «Войти», чтобы познакомиться с CMS.</p>
         </form>
       </section>
     </main>

@@ -1,91 +1,102 @@
 'use client'
 
-import { ArrowRight, FileText, ImageSquare, Newspaper, Plus, Wrench } from '@phosphor-icons/react'
+import { ArrowRight, ArrowUpRight, BookOpen, DotsThreeVertical, FileText, ImageSquare, Newspaper, Users, Wrench } from '@phosphor-icons/react'
+import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useDemo } from '@/components/demo/demo-provider'
-import { ActionLink, PageHeader, StatusBadge } from '@/components/ui/ui'
+import { StatusBadge } from '@/components/ui/ui'
+import { demoUsers } from '@/lib/demo-users'
 import styles from './dashboard.module.css'
 
 export default function DashboardPage() {
   const { state } = useDemo()
-  const drafts = [...state.pages, ...state.news].filter((item) => item.status !== 'published')
-  const recent = [...state.pages, ...state.news].slice(0, 5)
+  const [activeRow, setActiveRow] = useState<string | null>(null)
+  const rowsRef = useRef<HTMLDivElement>(null)
+  const recent = state.pages.slice(0, 4)
+  const home = state.pages.find((page) => page.id === 'home')
+  const homeMedia = state.media.find((asset) => asset.id === home?.published?.mediaId)
+  const canManageUsers = state.role === 'administrator'
 
-  return (
-    <>
-      <PageHeader
-        eyebrow="Управление контентом"
-        title="Добрый день, Олег"
-        description="Продолжите работу с черновиками или быстро перейдите к нужному разделу сайта."
-        actions={<ActionLink href="/admin/pages/home" icon={<FileText />}>Открыть главную</ActionLink>}
-      />
+  useEffect(() => {
+    if (!activeRow) return
+    const close = (event: PointerEvent) => {
+      if (!(event.target as Element).closest('[data-row-actions]')) setActiveRow(null)
+    }
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        rowsRef.current?.querySelector<HTMLButtonElement>('[aria-expanded="true"]')?.focus()
+        setActiveRow(null)
+      }
+    }
+    document.addEventListener('pointerdown', close)
+    document.addEventListener('keydown', escape)
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', escape) }
+  }, [activeRow])
 
-      <section className={styles.hero} aria-labelledby="today-title">
-        <div>
-          <span className={styles.heroMark}>OJ</span>
-          <h2 id="today-title">Сегодня в работе</h2>
-          <p>{drafts.length} материала ждут просмотра или публикации.</p>
-        </div>
-        <div className={styles.heroActions}>
-          <ActionLink href="/admin/news/new" variant="secondary" icon={<Plus />}>Добавить новость</ActionLink>
-          <ActionLink href="/preview/home" variant="secondary">Предпросмотр сайта</ActionLink>
-        </div>
-      </section>
+  return <>
+    <section className={styles.hero} aria-labelledby="welcome-title">
+      <div className={styles.heroImage}><Image src="/images/concrete-villa.webp" alt="" fill loading="eager" unoptimized /></div>
+      <div className={styles.heroCopy}>
+        <p className={styles.eyebrow}>Управление контентом</p>
+        <h1 id="welcome-title">Добрый день, Олег!</h1>
+        <p className={styles.intro}>Здесь вы можете управлять содержимым сайта, публиковать изменения<br className={styles.desktopBreak} /> и поддерживать актуальность информации.</p>
+      </div>
+      <div className={styles.heroNote} aria-hidden="true">Создаём<br /><span>возможности</span><i /></div>
+    </section>
 
-      <section className={styles.quick} aria-labelledby="quick-title">
-        <h2 id="quick-title">Быстрые действия</h2>
-        <div className={styles.quickGrid}>
-          <QuickLink href="/admin/pages" icon={<FileText />} title="Страницы" detail={`${state.pages.length} материалов`} />
-          <QuickLink href="/admin/news" icon={<Newspaper />} title="Новости" detail={`${state.news.length} публикации`} />
-          <QuickLink href="/admin/media" icon={<ImageSquare />} title="Медиа" detail={`${state.media.length} файла`} />
-          <QuickLink href="/admin/settings" icon={<Wrench />} title="Контакты и меню" detail="Настройки сайта" />
-        </div>
-      </section>
+    <div className={styles.workspace}>
+      <div className={styles.contentColumn}>
+        <section className={styles.stats} aria-label="Разделы сайта">
+          <StatCard href="/admin/pages" icon={<FileText />} title="Страницы" count={state.pages.length} detail="Основной контент сайта" />
+          <StatCard href="/admin/news" icon={<Newspaper />} title="Новости" count={state.news.length} detail="Публикации и материалы" />
+          <StatCard href="/admin/media" icon={<ImageSquare />} title="Медиа" count={state.media.length} detail="Изображения и файлы" />
+          {canManageUsers
+            ? <StatCard href="/admin/users" icon={<Users />} title="Пользователи" count={demoUsers.length} detail="Доступ и роли" />
+            : <StatCard href="/admin/settings" icon={<Wrench />} title="Настройки сайта" detail="Контакты и меню" />}
+        </section>
 
-      <div className={styles.columns}>
-        <section className={styles.panel} aria-labelledby="drafts-title">
-          <header><div><h2 id="drafts-title">Черновики</h2><p>Материалы с неопубликованными изменениями</p></div><Link href="/admin/pages">Все страницы</Link></header>
-          <div className={styles.rows}>
-            {drafts.map((item) => (
-              <Link className={styles.row} href={item.id.startsWith('news-') ? `/admin/news/${item.id}` : `/admin/pages/${item.id}`} key={item.id}>
-                <div><strong>{item.title}</strong><span>{item.author} · {item.updatedAt}</span></div>
+        <section className={styles.recentPanel} aria-labelledby="recent-title">
+          <header className={styles.panelHeader}><h2 id="recent-title">Недавние изменения</h2><Link href="/admin/pages">Все изменения<ArrowRight aria-hidden="true" /></Link></header>
+          <div ref={rowsRef} className={styles.rows}>
+            {recent.map((item, index) => {
+              const media = state.media.find((asset) => asset.id === item.draft.mediaId)
+              const fallback = ['/images/concrete-villa.webp', '/images/alpine-house.webp', '/images/alpine-mist.webp', '/images/concrete-villa.webp'][index]
+              return <div className={styles.row} key={item.id}>
+                <Link className={styles.document} href={`/admin/pages/${item.id}`}>
+                  <Image src={media?.url ?? fallback ?? '/images/concrete-villa.webp'} alt="" width={60} height={46} unoptimized />
+                  <span><strong>{item.title}</strong><small>{item.slug === 'home' ? '/' : `/${item.slug}`}</small></span>
+                </Link>
                 <StatusBadge status={item.status} />
-                <ArrowRight aria-hidden="true" />
-              </Link>
-            ))}
+                <div className={styles.rowMeta}><span>{item.updatedAt}</span><small>{item.author}</small></div>
+                <div className={styles.rowActions} data-row-actions onBlur={(event) => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setActiveRow(null) }}>
+                  <button type="button" className={styles.moreButton} aria-label={`Действия: ${item.title}`} aria-expanded={activeRow === item.id} onClick={() => setActiveRow(activeRow === item.id ? null : item.id)}><DotsThreeVertical aria-hidden="true" weight="bold" /></button>
+                  {activeRow === item.id ? <div className={styles.rowMenu}><Link href={`/admin/pages/${item.id}`} onClick={() => setActiveRow(null)}>Редактировать</Link><Link href={`/preview/${item.slug}`} onClick={() => setActiveRow(null)}>Предпросмотр</Link>{item.published ? <Link href={`/site/${item.slug}`} onClick={() => setActiveRow(null)}>Открыть на сайте</Link> : null}</div> : null}
+                </div>
+              </div>
+            })}
+            {!recent.length ? <p className={styles.empty}>Здесь появятся ваши страницы. <Link href="/admin/pages">Перейти к страницам</Link></p> : null}
           </div>
         </section>
 
-        <aside className={styles.siteCard} aria-label="Состояние публичного сайта">
-          <div className={styles.sitePreview}><span>OJ</span></div>
-          <div><span className={styles.liveDot} aria-hidden="true" /> Публичная версия доступна</div>
-          <h2>{state.settings.siteName}</h2>
-          <p>Последняя публикация — сегодня, 09:40</p>
-          <ActionLink href="/site/home" variant="secondary">Открыть сайт</ActionLink>
-        </aside>
+        <section className={styles.help} aria-labelledby="help-title"><BookOpen aria-hidden="true" /><div><h2 id="help-title">Нужна помощь?</h2><p>Откройте документацию или напишите мне.</p></div><Link href="/admin/help">Открыть документацию<ArrowUpRight aria-hidden="true" /></Link></section>
       </div>
-
-      <section className={styles.panel} aria-labelledby="recent-title">
-        <header><div><h2 id="recent-title">Недавние изменения</h2><p>Последние документы, доступные вашей роли</p></div></header>
-        <div className={styles.rows}>
-          {recent.map((item) => (
-            <div className={styles.rowStatic} key={item.id}>
-              <div><strong>{item.title}</strong><span>{item.author} · {item.updatedAt}</span></div>
-              <StatusBadge status={item.status} />
-            </div>
-          ))}
-        </div>
-      </section>
-    </>
-  )
+      <aside className={styles.rightColumn} aria-label="Сайт и активность">
+        <section className={styles.siteCard} aria-labelledby="preview-title">
+          <header><h2 id="preview-title">Предпросмотр сайта</h2><Link href="/preview/home" aria-label="Предпросмотр главной страницы"><ArrowUpRight aria-hidden="true" /></Link></header>
+          <Link className={styles.sitePreview} href={home?.published ? '/site/home' : '/preview/home'} aria-label="Открыть главную страницу сайта"><Image src={homeMedia?.url ?? '/images/alpine-house.webp'} alt="Предпросмотр главной страницы" fill sizes="(max-width: 767px) 90vw, 310px" unoptimized /></Link>
+          <p><span className={home?.published ? styles.liveDot : styles.draftDot} />{home?.published ? 'Актуальная версия сайта' : 'Страница ещё не опубликована'}</p>
+        </section>
+        <section className={styles.activity} aria-labelledby="activity-title">
+          <h2 id="activity-title">Последняя активность</h2>
+          {recent.map((item) => <Link className={styles.activityItem} href={`/admin/pages/${item.id}`} key={item.id}><span className={styles.activityIcon}><FileText aria-hidden="true" /></span><span><span>{item.author} · {item.title}</span><small>{item.updatedAt}</small></span></Link>)}
+        </section>
+      </aside>
+    </div>
+    <footer className={styles.signature}><span>Simple to manage. Built to last.</span><i /></footer>
+  </>
 }
 
-function QuickLink({ href, icon, title, detail }: { href: string; icon: React.ReactNode; title: string; detail: string }) {
-  return (
-    <Link className={styles.quickLink} href={href}>
-      <span className={styles.quickIcon}>{icon}</span>
-      <span><strong>{title}</strong><small>{detail}</small></span>
-      <ArrowRight aria-hidden="true" />
-    </Link>
-  )
+function StatCard({ href, icon, title, count, detail }: { href: string; icon: ReactNode; title: string; count?: number; detail: string }) {
+  return <Link className={styles.statCard} href={href}><span className={styles.statIcon} aria-hidden="true">{icon}</span><strong>{title}</strong><span className={styles.statValue}>{count ?? <ArrowRight aria-hidden="true" />}{count !== undefined ? <ArrowRight aria-hidden="true" /> : null}</span><small>{detail}</small></Link>
 }

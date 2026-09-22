@@ -20,11 +20,11 @@ export default function OpenGraphImage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-        <div style={{ width: 96, height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #111210', borderRadius: 999, fontSize: 36 }}>OJ</div>
-        <div style={{ display: 'flex', flexDirection: 'column', fontSize: 22, letterSpacing: 4, textTransform: 'uppercase' }}>Content workspace</div>
+        <svg width="100" height="76" viewBox="0 0 50 38" fill="none"><ellipse cx="17" cy="19" rx="15" ry="16" stroke="#121516" strokeWidth="3.2" /><path d="M46 2.8v24.7c0 5.9-2.9 8.3-8.5 6.9" stroke="#121516" strokeWidth="3.2" /></svg>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 14, letterSpacing: 5, textTransform: 'uppercase' }}><span>Content</span><span>Management</span></div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-        <div style={{ maxWidth: 900, fontSize: 74, fontWeight: 700, lineHeight: 1.02 }}>Управление сайтом без лишней сложности.</div>
+        <div style={{ maxWidth: 900, fontSize: 74, fontWeight: 400, lineHeight: 1.05, letterSpacing: -3 }}>Управление сайтом без лишней сложности.</div>
         <div style={{ fontSize: 27, color: '#555a55' }}>OJ CMS · авторский продукт Олега Якунина</div>
       </div>
     </div>,

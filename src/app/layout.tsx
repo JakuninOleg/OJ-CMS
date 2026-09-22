@@ -1,5 +1,5 @@
-import '@fontsource-variable/manrope'
 import '@fontsource-variable/inter'
+import '@fontsource-variable/caveat'
 import type { Metadata } from 'next'
 import type { ReactNode } from 'react'
 import { DemoProvider } from '@/components/demo/demo-provider'

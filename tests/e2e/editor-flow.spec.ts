@@ -48,6 +48,7 @@ test('creates and publishes a new news item in one action', async ({ page }) => 
 
 test('keeps editor users out of user administration on direct navigation', async ({ page }) => {
   await page.goto('/admin')
+  await page.getByRole('button', { name: 'Меню профиля' }).click()
   await page.getByRole('combobox', { name: 'Роль' }).selectOption('editor')
   await page.goto('/admin/users')
   await expect(page.getByRole('heading', { name: 'Недостаточно прав' })).toBeVisible()

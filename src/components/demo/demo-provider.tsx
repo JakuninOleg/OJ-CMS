@@ -4,6 +4,8 @@ import { createContext, useContext, useEffect, useMemo, useReducer, useState, ty
 import { z } from 'zod'
 import { initialDemoState, type DemoState } from '@/lib/demo-data'
 import { demoReducer, type DemoAction } from '@/lib/demo-reducer'
+import { refreshDemoArtwork } from '@/lib/demo-branding'
+import { OJLogo } from '@/components/brand/oj-logo'
 
 const storageKey = 'oj-cms-demo-v1'
 
@@ -83,7 +85,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       if (stored) {
         const parsed = persistedStateSchema.safeParse(JSON.parse(stored))
         if (parsed.success) {
-          dispatch({ type: 'state.restored', state: parsed.data })
+          dispatch({ type: 'state.restored', state: refreshDemoArtwork(parsed.data) })
         }
       }
     } catch {
@@ -106,7 +108,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const value = useMemo(() => ({ state, dispatch, hydrated, storageWarning }), [state, hydrated, storageWarning])
   return (
     <DemoContext.Provider value={value}>
-      {hydrated ? children : <main className="demo-boot" aria-busy="true" aria-live="polite"><span>OJ</span><p>Подготавливаем рабочее пространство…</p></main>}
+      {hydrated ? children : <main className="demo-boot" aria-busy="true" aria-live="polite"><OJLogo /><p>Подготавливаем рабочее пространство…</p></main>}
     </DemoContext.Provider>
   )
 }

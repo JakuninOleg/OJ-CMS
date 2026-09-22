@@ -6,7 +6,7 @@
 
 [Посмотреть живую демонстрацию](https://oj-cms.vercel.app/admin) · [Познакомиться с автором](https://jakuninoleg.dev/ru)
 
-![Главный экран OJ CMS](.design/oj-cms/screenshots/review-dashboard-desktop-1280.png)
+![Главный экран OJ CMS](.design/oj-cms/screenshots/review-dashboard-reference-1536.png)
 
 ## CMS, в которую приятно заходить
 

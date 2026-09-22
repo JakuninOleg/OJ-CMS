@@ -1,148 +1,116 @@
 'use client'
 
-import {
-  ArrowSquareOut,
-  FileText,
-  Gear,
-  House,
-  ImageSquare,
-  List,
-  Newspaper,
-  Question,
-  UserCircle,
-  Users,
-  X,
-} from '@phosphor-icons/react'
+import { ArrowUpRight, BookOpen, CaretDown, CaretLeft, CaretRight, Database, Files, Gear, ImageSquare, SquaresFour, Users, X } from '@phosphor-icons/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { OJLogo } from '@/components/brand/oj-logo'
 import { useDemo } from '@/components/demo/demo-provider'
+import { AdminTopbar } from './admin-topbar'
 import styles from './admin-shell.module.css'
-
-const navigation = [
-  { href: '/admin', label: 'Обзор', icon: House, exact: true },
-  { href: '/admin/pages', label: 'Страницы', icon: FileText },
-  { href: '/admin/news', label: 'Новости', icon: Newspaper },
-  { href: '/admin/media', label: 'Медиа', icon: ImageSquare },
-  { href: '/admin/settings', label: 'Настройки сайта', icon: Gear },
-] as const
 
 const focusableSelector = 'a[href], button:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const { state, dispatch, storageWarning } = useDemo()
+  const { state, storageWarning } = useDemo()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
+  const [collectionsOpen, setCollectionsOpen] = useState<boolean | null>(null)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const mobileDialogRef = useRef<HTMLElement>(null)
+  const inCollections = pathname.startsWith('/admin/pages') || pathname.startsWith('/admin/news')
+  const showCollections = collectionsOpen ?? inCollections
+
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 768px)')
+    const closeAtDesktop = () => { if (desktop.matches) setMobileOpen(false) }
+    desktop.addEventListener('change', closeAtDesktop)
+    return () => desktop.removeEventListener('change', closeAtDesktop)
+  }, [])
 
   useEffect(() => {
     if (!mobileOpen) return
+    const trigger = menuButtonRef.current
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
-
-    const closeOnEscape = (event: KeyboardEvent) => {
+    const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setMobileOpen(false)
-        menuButtonRef.current?.focus()
-        return
       }
       if (event.key !== 'Tab' || !mobileDialogRef.current) return
-
-      const focusable = Array.from(mobileDialogRef.current.querySelectorAll<HTMLElement>(focusableSelector))
+      const focusable = Array.from(mobileDialogRef.current.querySelectorAll<HTMLElement>(focusableSelector)).filter((element) => element.getClientRects().length > 0)
       const first = focusable[0]
       const last = focusable.at(-1)
-      if (!first || !last) return
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault()
-        last.focus()
+        last?.focus()
       } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault()
-        first.focus()
+        first?.focus()
       }
     }
-
-    document.addEventListener('keydown', closeOnEscape)
+    document.addEventListener('keydown', onKeyDown)
     return () => {
-      document.removeEventListener('keydown', closeOnEscape)
+      document.removeEventListener('keydown', onKeyDown)
       document.body.style.overflow = previousOverflow
+      // Restore focus after React removes inert from the main column.
+      queueMicrotask(() => trigger?.focus())
     }
   }, [mobileOpen])
 
   const closeMobileMenu = () => {
     setMobileOpen(false)
-    menuButtonRef.current?.focus()
   }
 
-  const renderNavigation = (mobile = false) => (
-    <>
+  const renderNavigation = (mobile = false) => {
+    const compact = collapsed && !mobile
+    const navLink = (href: string, label: string, icon: ReactNode, exact = false) => {
+      const active = exact ? pathname === href : pathname.startsWith(href)
+      return <Link href={href} className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`} aria-current={active ? 'page' : undefined} title={compact ? label : undefined} onClick={() => { setMobileOpen(false); setCollectionsOpen(null) }}>{icon}<span className={styles.navLabel}>{label}</span></Link>
+    }
+    return <>
       <div className={styles.brandRow}>
-        <Link className={styles.brand} href="/admin" aria-label="OJ CMS — обзор">
-          <span className={styles.brandMark}>OJ</span>
-          <span><strong>OJ CMS</strong><small>Content workspace</small></span>
-        </Link>
-        {mobile ? <button ref={closeButtonRef} className={styles.mobileClose} type="button" onClick={closeMobileMenu} aria-label="Закрыть меню"><X /></button> : null}
+        <Link className={styles.brand} href="/admin" aria-label="OJ CMS — обзор" onClick={() => setMobileOpen(false)}><OJLogo compact={compact} /></Link>
+        {mobile
+          ? <button ref={closeButtonRef} className={styles.iconButton} type="button" onClick={closeMobileMenu} aria-label="Закрыть меню"><X /></button>
+          : <button className={`${styles.iconButton} ${styles.collapseButton}`} type="button" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? 'Развернуть боковую панель' : 'Свернуть боковую панель'}>{collapsed ? <CaretRight /> : <CaretLeft />}</button>}
       </div>
-
       <nav className={styles.navigation} aria-label="Основная навигация">
-        {navigation.map((item) => {
-          const active = 'exact' in item && item.exact ? pathname === item.href : pathname.startsWith(item.href)
-          const Icon = item.icon
-          return (
-            <Link className={`${styles.navLink} ${active ? styles.navLinkActive : ''}`} href={item.href} key={item.href} aria-current={active ? 'page' : undefined} onClick={() => setMobileOpen(false)}>
-              <Icon aria-hidden="true" weight={active ? 'fill' : 'regular'} />
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
-        {state.role === 'administrator' ? (
-          <Link className={`${styles.navLink} ${pathname.startsWith('/admin/users') ? styles.navLinkActive : ''}`} href="/admin/users" aria-current={pathname.startsWith('/admin/users') ? 'page' : undefined} onClick={() => setMobileOpen(false)}>
-            <Users aria-hidden="true" />
-            <span>Пользователи</span>
-          </Link>
-        ) : null}
+        {navLink('/admin', 'Обзор', <SquaresFour aria-hidden="true" />, true)}
+        {compact ? navLink('/admin/pages', 'Коллекции', <Database aria-hidden="true" />) : <>
+          <button className={`${styles.navLink} ${inCollections ? styles.navLinkActive : ''}`} type="button" aria-expanded={showCollections} aria-controls={mobile ? 'mobile-collections' : 'desktop-collections'} onClick={() => setCollectionsOpen(!showCollections)}><Database aria-hidden="true" /><span className={styles.navLabel}>Коллекции</span><CaretDown className={styles.navCaret} aria-hidden="true" /></button>
+          <div className={styles.subnav} id={mobile ? 'mobile-collections' : 'desktop-collections'} hidden={!showCollections}>{navLink('/admin/pages', 'Страницы', null)}{navLink('/admin/news', 'Новости', null)}</div>
+        </>}
+        {navLink('/admin/settings', 'Глобальные', <Files aria-hidden="true" />)}
+        {navLink('/admin/media', 'Медиа', <ImageSquare aria-hidden="true" />)}
+        {state.role === 'administrator' ? navLink('/admin/users', 'Пользователи', <Users aria-hidden="true" />) : null}
+        <div className={styles.navDivider} />
+        {navLink('/admin/preferences', 'Настройки', <Gear aria-hidden="true" />)}
+        {navLink('/admin/help', 'Документация', <BookOpen aria-hidden="true" />)}
       </nav>
-
       <div className={styles.sidebarFooter}>
-        <a className={styles.utilityLink} href="/site/home" target="_blank" rel="noreferrer"><ArrowSquareOut aria-hidden="true" />Открыть сайт</a>
-        <a className={styles.utilityLink} href="https://payloadcms.com/docs" target="_blank" rel="noreferrer"><Question aria-hidden="true" />Помощь</a>
-        <Link className={styles.profileLink} href="/admin/profile">
-          <span className={styles.avatar}>ОЯ</span>
-          <span><strong>Олег Якунин</strong><small>{state.role === 'administrator' ? 'Администратор' : 'Редактор'}</small></span>
-          <UserCircle aria-hidden="true" />
-        </Link>
-        <div className={styles.demoControls}>
-          <span>Демо-режим · данные в браузере</span>
-          {storageWarning ? <span className={styles.storageWarning} role="alert">{storageWarning}</span> : null}
-          <label>
-            Роль
-            <select value={state.role} onChange={(event) => dispatch({ type: 'role.changed', role: event.target.value as 'administrator' | 'editor' })}>
-              <option value="administrator">Администратор</option>
-              <option value="editor">Редактор</option>
-            </select>
-          </label>
-          <button type="button" onClick={() => dispatch({ type: 'demo.reset' })}>Сбросить демо-данные</button>
-        </div>
+        <div className={styles.landscape} aria-hidden="true" />
+        <p className={styles.motto}>Хорошие<br />сайты делают<br />большие дела.</p>
+        <span className={styles.footerRule} />
+        <a className={styles.credit} href="https://github.com/JakuninOleg/OJ-CMS" target="_blank" rel="noreferrer"><span>© OJ 2026<br />Powered by Payload</span><ArrowUpRight aria-hidden="true" /></a>
       </div>
     </>
-  )
+  }
 
-  return (
-    <div className={styles.app}>
-      <a className={styles.skipLink} href="#main-content">Перейти к содержимому</a>
-      <aside className={styles.sidebar} aria-label="Навигация CMS">{renderNavigation()}</aside>
-      {mobileOpen ? <div className={styles.mobileBackdrop} onClick={() => setMobileOpen(false)} aria-hidden="true" /> : null}
-      {mobileOpen ? <aside ref={mobileDialogRef} className={`${styles.mobileSidebar} ${styles.mobileSidebarOpen}`} role="dialog" aria-modal="true" aria-label="Навигация">{renderNavigation(true)}</aside> : null}
-      <div className={styles.mainColumn}>
-        <header className={styles.mobileHeader}>
-          <button ref={menuButtonRef} type="button" onClick={() => setMobileOpen(true)} aria-label="Открыть меню" aria-expanded={mobileOpen}><List /></button>
-          <span className={styles.mobileLogo}>OJ CMS</span>
-          <Link href="/admin/profile" aria-label="Открыть профиль"><span className={styles.avatar}>ОЯ</span></Link>
-        </header>
-        <main className={styles.main} id="main-content" tabIndex={-1}>{children}</main>
-      </div>
+  return <div className={`${styles.app} ${collapsed ? styles.collapsed : ''}`}>
+    <a className={styles.skipLink} href="#main-content">Перейти к содержимому</a>
+    <aside className={styles.sidebar} aria-label="Навигация CMS" inert={mobileOpen}>{renderNavigation()}</aside>
+    {mobileOpen ? <>
+      <div className={styles.mobileBackdrop} onClick={closeMobileMenu} aria-hidden="true" />
+      <aside ref={mobileDialogRef} className={styles.mobileSidebar} role="dialog" aria-modal="true" aria-label="Навигация">{renderNavigation(true)}</aside>
+    </> : null}
+    <div className={styles.mainColumn} inert={mobileOpen}>
+      <AdminTopbar menuButtonRef={menuButtonRef} onOpenMenu={() => setMobileOpen(true)} />
+      {storageWarning ? <div className={styles.storageWarning} role="alert">{storageWarning}</div> : null}
+      <main className={`${styles.main} ${pathname === '/admin' ? styles.dashboardMain : ''}`} id="main-content" tabIndex={-1}>{children}</main>
     </div>
-  )
+  </div>
 }

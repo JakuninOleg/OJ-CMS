@@ -46,7 +46,7 @@ export default function SettingsPage() {
           </div>
         </section>
         <section className={styles.panel}>
-          <header><span>02</span><div><h2>Основная навигация</h2><p>Один пункт на строку. В Payload это будет структурированное поле.</p></div></header>
+          <header><span>02</span><div><h2>Основная навигация</h2><p>Введите каждый пункт меню с новой строки.</p></div></header>
           <div className={styles.fields}><Textarea label="Пункты меню" value={form.navigation} onChange={(event) => update('navigation', event.target.value)} rows={6} /></div>
         </section>
         <footer className={styles.actions}><span>Бренд OJ CMS и состав модулей задаются разработчиком.</span><Button type="submit" icon={<FloppyDisk />}>Сохранить настройки</Button></footer>

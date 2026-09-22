@@ -4,13 +4,8 @@ import { Lock, Plus, UserCircle } from '@phosphor-icons/react'
 import { useDemo } from '@/components/demo/demo-provider'
 import { ActionLink, Notice, PageHeader, StatusBadge } from '@/components/ui/ui'
 import { useState } from 'react'
+import { demoUsers as users } from '@/lib/demo-users'
 import styles from './users.module.css'
-
-const users = [
-  { id: '1', name: 'Олег Якунин', email: 'oleg@example.ru', role: 'Администратор', active: true },
-  { id: '2', name: 'Елена Петрова', email: 'elena@example.ru', role: 'Редактор', active: true },
-  { id: '3', name: 'Иван Соколов', email: 'ivan@example.ru', role: 'Редактор', active: true },
-]
 
 export default function UsersPage() {
   const { state, hydrated } = useDemo()
