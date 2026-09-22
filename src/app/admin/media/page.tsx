@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useDemo } from '@/components/demo/demo-provider'
 import { Button, EmptyState, Notice, PageHeader } from '@/components/ui/ui'
+import { maxDemoImageLabel, validateDemoImage } from '@/lib/demo-media'
 import styles from './media.module.css'
 
 export default function MediaPage() {
@@ -21,8 +22,8 @@ export default function MediaPage() {
     setUploadError('')
     setUploaded('')
     if (!file) return
-    if (!file.type.startsWith('image/')) { setUploadError('Поддерживаются изображения JPG, PNG, WebP, GIF и SVG.'); return }
-    if (file.size > 5 * 1024 * 1024) { setUploadError('Файл больше 5 МБ. Уменьшите изображение и повторите загрузку.'); return }
+    const validationError = validateDemoImage(file)
+    if (validationError) { setUploadError(validationError); return }
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result !== 'string') return
@@ -67,7 +68,7 @@ export default function MediaPage() {
           )}
         </aside>
       </div>
-      <div className={styles.demoFailure}><Warning aria-hidden="true" /><span>Чтобы проверить ошибку загрузки, выберите файл другого типа или изображение больше 5 МБ.</span></div>
+      <div className={styles.demoFailure}><Warning aria-hidden="true" /><span>Чтобы проверить ошибку загрузки, выберите файл другого типа или изображение больше {maxDemoImageLabel}.</span></div>
     </>
   )
 }

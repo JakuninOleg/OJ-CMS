@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
       <div className={styles.columns}>
         <section className={styles.panel} aria-labelledby="drafts-title">
-          <header><div><h2 id="drafts-title">Черновики</h2><p>Материалы с неопубликованными изменениями</p></div><Link href="/admin/pages?status=draft">Все черновики</Link></header>
+          <header><div><h2 id="drafts-title">Черновики</h2><p>Материалы с неопубликованными изменениями</p></div><Link href="/admin/pages">Все страницы</Link></header>
           <div className={styles.rows}>
             {drafts.map((item) => (
               <Link className={styles.row} href={item.id.startsWith('news-') ? `/admin/news/${item.id}` : `/admin/pages/${item.id}`} key={item.id}>

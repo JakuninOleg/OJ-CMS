@@ -29,6 +29,9 @@ export function NewsEditor({ newsId }: { newsId: string }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const dirty = JSON.stringify(form) !== JSON.stringify(saved)
+  const displaySuccess = success || (existing?.updatedAt === 'только что'
+    ? existing.status === 'published' ? 'Новость опубликована.' : 'Черновик сохранён.'
+    : '')
 
   const save = () => {
     if (!form.title.trim() || !/^[a-z0-9-]+$/.test(form.slug)) {
@@ -46,7 +49,7 @@ export function NewsEditor({ newsId }: { newsId: string }) {
   }
 
   const publish = () => {
-    if (dirty && !save()) return
+    if ((dirty || !existing) && !save()) return
     dispatch({ type: 'news.published', id: form.id })
     const next = { ...form, status: 'published' as const, updatedAt: 'только что' }
     setForm(next)
@@ -66,7 +69,7 @@ export function NewsEditor({ newsId }: { newsId: string }) {
         </div>
       </header>
       {error ? <Notice tone="error" title="Не удалось сохранить">{error}</Notice> : null}
-      {success ? <Notice tone="success" title={success}>Данные сохраняются только в демо-состоянии браузера.</Notice> : null}
+      {displaySuccess ? <Notice tone="success" title={displaySuccess}>Данные сохраняются только в демо-состоянии браузера.</Notice> : null}
       <div className={styles.grid}>
         <section className={styles.panel}>
           <h2>Материал</h2>

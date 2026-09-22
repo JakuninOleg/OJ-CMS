@@ -1,64 +1,71 @@
 # OJ CMS
 
-OJ CMS is a product design and interactive prototype for a reusable client-facing administration experience built on Payload. The current repository contains stages A–D: product brief, information architecture, design system, interactive browser prototype, verification, and a checked integration plan.
+### Управление сайтом, которое не нужно объяснять.
 
-The prototype is intentionally honest about its boundary: content persists in browser `localStorage`, not Payload. The next implementation stage will connect the reviewed experience to Payload drafts, versions, access control, media, and globals through supported extension points.
+**OJ CMS** — авторская система управления контентом от веб-разработчика **Олега Якунина**. Она превращает мощь Payload в спокойный, понятный и красивый рабочий интерфейс для бизнеса.
 
-## Run locally
+[Посмотреть живую демонстрацию](https://oj-cms.vercel.app/admin) · [Познакомиться с автором](https://jakuninoleg.dev/ru)
 
-Requirements: Node.js 22 or newer and npm 9 or newer. CI currently verifies Node.js 24.
+![Главный экран OJ CMS](.design/oj-cms/screenshots/review-dashboard-desktop-1280.png)
 
-```bash
-npm ci
-npm run dev
-```
+## CMS, в которую приятно заходить
 
-Open http://localhost:3000. The administration prototype starts at `/admin`; the populated login demonstration is at `/login`.
+Сайт может быть сложным внутри. Для клиента он не должен быть сложным в работе.
 
-## Product walkthrough
+В OJ CMS нет ощущения технической панели, в которой страшно нажать не туда. Здесь всё названо человеческим языком: страницы, новости, изображения, контакты и пользователи. Редактор сразу понимает, где он находится, что сейчас изменено и что увидят посетители сайта.
 
-1. Open `/admin/pages/home`.
-2. Change the cover heading or choose another image.
-3. Save the draft.
-4. Open `/preview/home` and confirm the draft is visible.
-5. Open `/site/home` and confirm the previous published version remains public.
-6. Return to the editor, publish, and confirm `/site/home` now shows the new version.
+Это рабочее пространство для компаний, которым важны порядок, самостоятельность и достойное впечатление от собственного продукта — в том числе после запуска.
 
-The sidebar's demo panel switches between Administrator and Editor, and resets all browser-local data. As Editor, direct access to `/admin/users` returns a permission-denied view without rendering user records.
+## Всё необходимое — на своих местах
 
-## Quality checks
+- **Страницы и новости** — понятная структура контента без лишних терминов.
+- **Черновики и публикация** — изменения можно спокойно сохранить, проверить и только потом показать посетителям.
+- **Предпросмотр** — будущий результат виден до публикации.
+- **Медиатека** — изображения собраны в одном месте вместе с описаниями и связями.
+- **Настройки сайта** — контакты, название и навигация меняются без обращения к разработчику.
+- **Роли пользователей** — редакторы работают с контентом, администраторы управляют доступом.
+- **Любой экран** — интерфейс остаётся удобным на компьютере, планшете и телефоне.
 
-```bash
-npm run typecheck
-npm run lint
-npm test
-npm run build # required before the production-server browser suite
-npm run test:e2e
-```
+![Редактор страницы в OJ CMS](.design/oj-cms/screenshots/review-editor-desktop-1280.png)
 
-GitHub Actions runs the same gates on pushes and pull requests. The browser suite verifies draft isolation, preview, publication, permission boundaries, login behavior, and a mobile overflow check.
-It also runs axe against the login, dashboard, and page editor. `npm run screenshots` refreshes the review evidence while the production server is available on port 3107.
+## Спокойная уверенность вместо страха что-то сломать
 
-## Project structure
+OJ CMS показывает состояние каждой публикации простыми словами: **черновик**, **есть изменения**, **опубликовано**. Она предупреждает о несохранённой работе, не теряет введённый текст при ошибке и не позволяет случайно удалить изображение, которое уже используется на сайте.
 
-- `.design/oj-cms/` — brief, information architecture, integration map, build tasks, review, and screenshots.
-- `.cursor/rules/` — persistent engineering standards for TypeScript, React/Next.js, Payload, styling, accessibility, testing, and delivery.
-- `design-system/oj-cms/MASTER.md` — visual and interaction source of truth.
-- `src/styles/tokens.css` — primitive, semantic, typography, layout, motion, and dark-theme tokens.
-- `src/components/` — reusable shell, document, editor, site renderer, and UI components.
-- `src/app/` — real prototype routes for administration, preview, public example, and login.
-- `tests/e2e/` — critical product scenarios.
+Каждое действие имеет понятный результат. Именно так управление контентом становится ежедневным инструментом, а не отдельной задачей для технического специалиста.
 
-## Architecture decisions
+![Работа с медиатекой](.design/oj-cms/screenshots/review-media-desktop-1280.png)
 
-- TypeScript strict mode with unchecked index and exact optional property checks.
-- React Server Components by default; client boundaries contain browser-local prototype interactions.
-- CSS Modules and CSS custom properties; Tailwind is not used.
-- Phosphor icons and locally installed SIL Open Font License font packages; builds do not fetch remote fonts.
-- No Payload fork, patched dependencies, or assumptions about undocumented Admin DOM.
+## Красивый интерфейс поверх Payload
 
-See `.design/oj-cms/INTEGRATION_MAP.md` for the verified Payload mapping and security requirements.
+В основе OJ CMS лежит Payload — современная и гибкая платформа для профессиональных веб-проектов. OJ CMS добавляет к ней собственную логику взаимодействия, визуальный язык и опыт, ориентированный на реальных редакторов и владельцев бизнеса.
 
-## Current status
+Каждый проект можно адаптировать под компанию: оставить только нужные разделы, настроить роли, перенести фирменный стиль и собрать понятную структуру именно под её процессы.
 
-This repository is a reviewed interactive prototype, not the production Payload integration. It is suitable for evaluating the workflow and visual system. Production readiness applies after the next stage proves persistence, authorization, migrations, preview security, caching, deployment, and backup/restore against a pinned Payload stack.
+В результате клиент получает собственную аккуратную CMS, а не безликую панель с десятками ненужных возможностей.
+
+## Попробуйте сами
+
+Откройте [демонстрацию OJ CMS](https://oj-cms.vercel.app/admin) и пройдите обычный путь редактора:
+
+1. Откройте главную страницу.
+2. Измените заголовок или выберите другое изображение.
+3. Сохраните черновик.
+4. Посмотрите результат в предпросмотре.
+5. Опубликуйте страницу и откройте её публичную версию.
+
+Демонстрация работает лично для каждого посетителя: ваши изменения остаются в вашем браузере и не мешают другим людям знакомиться с продуктом.
+
+## Создано Олегом Якуниным
+
+**Олег Якунин** — веб-разработчик, который проектирует и создаёт цифровые продукты целиком: от идеи, пользовательского сценария и визуальной системы до работающего сайта и дальнейшего развития.
+
+OJ CMS — его подход к клиентским проектам в форме продукта: сильная технология внутри, ясный интерфейс снаружи и внимание к тому, как сайтом будут пользоваться после запуска.
+
+[Сайт Олега Якунина](https://jakuninoleg.dev/ru) · [GitHub](https://github.com/JakuninOleg)
+
+---
+
+### Нужен сайт, которым действительно удобно управлять?
+
+[Посмотрите OJ CMS в работе](https://oj-cms.vercel.app/admin), а затем [расскажите Олегу о своём проекте](https://jakuninoleg.dev/ru).

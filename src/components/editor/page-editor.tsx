@@ -8,6 +8,7 @@ import { useDemo } from '@/components/demo/demo-provider'
 import { Button, Field, Notice, StatusBadge, Textarea } from '@/components/ui/ui'
 import { Modal } from '@/components/ui/modal'
 import type { PageContent, PageDocument } from '@/lib/demo-data'
+import { validateDemoImage } from '@/lib/demo-media'
 import styles from './page-editor.module.css'
 
 const emptyContent: PageContent = {
@@ -244,8 +245,8 @@ function MediaPicker({ open, onClose, selectedId, onSelect }: { open: boolean; o
   const upload = (file: File | undefined) => {
     setUploadError('')
     if (!file) return
-    if (!file.type.startsWith('image/')) { setUploadError('Можно загрузить только изображение.'); return }
-    if (file.size > 5 * 1024 * 1024) { setUploadError('Размер файла не должен превышать 5 МБ.'); return }
+    const validationError = validateDemoImage(file)
+    if (validationError) { setUploadError(validationError); return }
     const reader = new FileReader()
     reader.onload = () => {
       if (typeof reader.result !== 'string') return

@@ -27,26 +27,48 @@ const navigation = [
   { href: '/admin/settings', label: 'Настройки сайта', icon: Gear },
 ] as const
 
+const focusableSelector = 'a[href], button:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const { state, dispatch } = useDemo()
+  const { state, dispatch, storageWarning } = useDemo()
   const [mobileOpen, setMobileOpen] = useState(false)
   const menuButtonRef = useRef<HTMLButtonElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const mobileDialogRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     if (!mobileOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
     closeButtonRef.current?.focus()
 
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setMobileOpen(false)
         menuButtonRef.current?.focus()
+        return
+      }
+      if (event.key !== 'Tab' || !mobileDialogRef.current) return
+
+      const focusable = Array.from(mobileDialogRef.current.querySelectorAll<HTMLElement>(focusableSelector))
+      const first = focusable[0]
+      const last = focusable.at(-1)
+      if (!first || !last) return
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
       }
     }
 
     document.addEventListener('keydown', closeOnEscape)
-    return () => document.removeEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape)
+      document.body.style.overflow = previousOverflow
+    }
   }, [mobileOpen])
 
   const closeMobileMenu = () => {
@@ -93,6 +115,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </Link>
         <div className={styles.demoControls}>
           <span>Демо-режим · данные в браузере</span>
+          {storageWarning ? <span className={styles.storageWarning} role="alert">{storageWarning}</span> : null}
           <label>
             Роль
             <select value={state.role} onChange={(event) => dispatch({ type: 'role.changed', role: event.target.value as 'administrator' | 'editor' })}>
@@ -108,16 +131,17 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={styles.app}>
+      <a className={styles.skipLink} href="#main-content">Перейти к содержимому</a>
       <aside className={styles.sidebar} aria-label="Навигация CMS">{renderNavigation()}</aside>
       {mobileOpen ? <div className={styles.mobileBackdrop} onClick={() => setMobileOpen(false)} aria-hidden="true" /> : null}
-      {mobileOpen ? <aside className={`${styles.mobileSidebar} ${styles.mobileSidebarOpen}`} role="dialog" aria-modal="true" aria-label="Навигация">{renderNavigation(true)}</aside> : null}
+      {mobileOpen ? <aside ref={mobileDialogRef} className={`${styles.mobileSidebar} ${styles.mobileSidebarOpen}`} role="dialog" aria-modal="true" aria-label="Навигация">{renderNavigation(true)}</aside> : null}
       <div className={styles.mainColumn}>
         <header className={styles.mobileHeader}>
           <button ref={menuButtonRef} type="button" onClick={() => setMobileOpen(true)} aria-label="Открыть меню" aria-expanded={mobileOpen}><List /></button>
           <span className={styles.mobileLogo}>OJ CMS</span>
           <Link href="/admin/profile" aria-label="Открыть профиль"><span className={styles.avatar}>ОЯ</span></Link>
         </header>
-        <main className={styles.main} id="main-content">{children}</main>
+        <main className={styles.main} id="main-content" tabIndex={-1}>{children}</main>
       </div>
     </div>
   )

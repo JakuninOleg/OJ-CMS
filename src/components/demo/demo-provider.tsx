@@ -67,6 +67,7 @@ type DemoContextValue = {
   state: DemoState
   dispatch: Dispatch<DemoAction>
   hydrated: boolean
+  storageWarning: string | null
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null)
@@ -74,28 +75,40 @@ const DemoContext = createContext<DemoContextValue | null>(null)
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(demoReducer, initialDemoState)
   const [hydrated, setHydrated] = useState(false)
+  const [storageWarning, setStorageWarning] = useState<string | null>(null)
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(storageKey)
-    if (stored) {
-      try {
+    try {
+      const stored = window.localStorage.getItem(storageKey)
+      if (stored) {
         const parsed = persistedStateSchema.safeParse(JSON.parse(stored))
         if (parsed.success) {
           dispatch({ type: 'state.restored', state: parsed.data })
         }
-      } catch {
-        window.localStorage.removeItem(storageKey)
       }
+    } catch {
+      queueMicrotask(() => setStorageWarning('Не удалось восстановить демо-данные. Начата новая сессия.'))
+      try { window.localStorage.removeItem(storageKey) } catch { /* Storage may be unavailable. */ }
     }
     queueMicrotask(() => setHydrated(true))
   }, [])
 
   useEffect(() => {
-    if (hydrated) window.localStorage.setItem(storageKey, JSON.stringify(state))
+    if (!hydrated) return
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(state))
+      queueMicrotask(() => setStorageWarning(null))
+    } catch {
+      queueMicrotask(() => setStorageWarning('Браузеру не удалось сохранить изменения. Удалите крупные файлы или сбросьте демо-данные.'))
+    }
   }, [hydrated, state])
 
-  const value = useMemo(() => ({ state, dispatch, hydrated }), [state, hydrated])
-  return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>
+  const value = useMemo(() => ({ state, dispatch, hydrated, storageWarning }), [state, hydrated, storageWarning])
+  return (
+    <DemoContext.Provider value={value}>
+      {hydrated ? children : <main className="demo-boot" aria-busy="true" aria-live="polite"><span>OJ</span><p>Подготавливаем рабочее пространство…</p></main>}
+    </DemoContext.Provider>
+  )
 }
 
 export function useDemo(): DemoContextValue {

@@ -14,6 +14,8 @@ test('saves a draft, previews it, and publishes without leaking the draft public
   await page.getByLabel('Заголовок').fill(draftHeading)
   await page.getByRole('button', { name: 'Сохранить черновик' }).click()
   await expect(page.getByText('Черновик сохранён', { exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByLabel('Заголовок')).toHaveValue(draftHeading)
 
   await page.goto('/preview/home')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(draftHeading)
@@ -29,10 +31,28 @@ test('saves a draft, previews it, and publishes without leaking the draft public
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(draftHeading)
 })
 
+test('creates and publishes a new news item in one action', async ({ page }) => {
+  await page.goto('/admin/news/new')
+  await page.getByLabel('Заголовок').fill('Новая демонстрационная публикация')
+  await page.getByLabel('Адрес').fill('demo-publication')
+  await page.getByLabel('Краткое описание').fill('Проверяем полный сценарий создания новости.')
+  await page.getByRole('button', { name: 'Опубликовать' }).click()
+  await expect(page).toHaveURL(/\/admin\/news\/news-/)
+  await expect(page.getByText('Новость опубликована.', { exact: true })).toBeVisible()
+
+  await page.goto('/admin/news')
+  const createdRow = page.getByRole('row').filter({ hasText: 'Новая демонстрационная публикация' })
+  await expect(createdRow).toBeVisible()
+  await expect(createdRow.getByText('Опубликовано')).toBeVisible()
+})
+
 test('keeps editor users out of user administration on direct navigation', async ({ page }) => {
   await page.goto('/admin')
   await page.getByRole('combobox', { name: 'Роль' }).selectOption('editor')
   await page.goto('/admin/users')
+  await expect(page.getByRole('heading', { name: 'Недостаточно прав' })).toBeVisible()
+  await expect(page.getByText('oleg@example.ru')).toHaveCount(0)
+  await page.reload()
   await expect(page.getByRole('heading', { name: 'Недостаточно прав' })).toBeVisible()
   await expect(page.getByText('oleg@example.ru')).toHaveCount(0)
 })
@@ -62,6 +82,30 @@ test('has no horizontal page overflow on a 390px viewport', async ({ page }) => 
   await page.goto('/admin/pages/home')
   const dimensions = await page.evaluate(() => ({ scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth }))
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth)
+})
+
+test('keeps keyboard focus inside an open dialog', async ({ page }) => {
+  await page.goto('/admin/pages/home')
+  await page.getByRole('button', { name: 'Заменить изображение' }).click()
+  const dialog = page.getByRole('dialog', { name: 'Выбрать изображение' })
+  await expect(dialog.getByRole('button', { name: 'Закрыть окно' })).toBeFocused()
+  await page.keyboard.press('Shift+Tab')
+  await expect(dialog.getByRole('button', { name: 'Выбрать', exact: true })).toBeFocused()
+  await page.keyboard.press('Tab')
+  await expect(dialog.getByRole('button', { name: 'Закрыть окно' })).toBeFocused()
+})
+
+test('reports unavailable browser persistence without crashing the workspace', async ({ page }) => {
+  await page.addInitScript(() => {
+    const originalSetItem = Storage.prototype.setItem
+    Storage.prototype.setItem = function setItem(key: string, value: string) {
+      if (key === 'oj-cms-demo-v1') throw new DOMException('Quota exceeded', 'QuotaExceededError')
+      return originalSetItem.call(this, key, value)
+    }
+  })
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Добрый день, Олег' })).toBeVisible()
+  await expect(page.getByText('Браузеру не удалось сохранить изменения', { exact: false })).toBeVisible()
 })
 
 for (const route of ['/login', '/admin', '/admin/pages/home']) {

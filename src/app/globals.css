@@ -1,5 +1,9 @@
 @import "../styles/tokens.css";
 
+.demo-boot { min-height: 100dvh; display: grid; place-items: center; align-content: center; gap: var(--space-4); background: var(--color-canvas); color: var(--color-text-secondary); text-align: center; }
+.demo-boot span { width: 4rem; height: 4rem; display: grid; place-items: center; border: 1px solid var(--color-text); border-radius: 50%; color: var(--color-text); font: var(--weight-medium) var(--text-xl) / 1 var(--font-display); }
+.demo-boot p { margin: 0; font-size: var(--text-sm); }
+
 * { box-sizing: border-box; }
 html { min-width: 20rem; background: var(--color-canvas); }
 body { margin: 0; background: var(--color-canvas); color: var(--color-text); font: var(--weight-regular) var(--text-base) / var(--leading-normal) var(--font-body); text-rendering: optimizeLegibility; }

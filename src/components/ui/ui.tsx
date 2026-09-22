@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react'
+import { useId, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
 import type { DocumentStatus } from '@/lib/demo-data'
 import styles from './ui.module.css'
 
@@ -51,20 +51,23 @@ type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
 }
 
 export function Field({ label, hint, error, id, className = '', ...props }: FieldProps) {
-  const inputId = id ?? props.name
-  const descriptionId = `${inputId}-description`
+  const generatedId = useId().replaceAll(':', '')
+  const inputId = id ?? props.name ?? `field-${generatedId}`
+  const hintId = hint ? `${inputId}-hint` : undefined
+  const errorId = error ? `${inputId}-error` : undefined
+  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
   return (
     <label className={`${styles.field} ${className}`} htmlFor={inputId}>
       <span className={styles.fieldLabel}>{label}</span>
-      {hint ? <span className={styles.fieldHint} id={descriptionId}>{hint}</span> : null}
+      {hint ? <span className={styles.fieldHint} id={hintId}>{hint}</span> : null}
       <input
         className={`${styles.input} ${error ? styles.inputError : ''}`}
         id={inputId}
-        aria-describedby={hint || error ? descriptionId : undefined}
+        aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         {...props}
       />
-      {error ? <span className={styles.fieldError} id={descriptionId}>{error}</span> : null}
+      {error ? <span className={styles.fieldError} id={errorId}>{error}</span> : null}
     </label>
   )
 }
@@ -76,20 +79,23 @@ type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & {
 }
 
 export function Textarea({ label, hint, error, id, className = '', ...props }: TextareaProps) {
-  const inputId = id ?? props.name
-  const descriptionId = `${inputId}-description`
+  const generatedId = useId().replaceAll(':', '')
+  const inputId = id ?? props.name ?? `textarea-${generatedId}`
+  const hintId = hint ? `${inputId}-hint` : undefined
+  const errorId = error ? `${inputId}-error` : undefined
+  const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined
   return (
     <label className={`${styles.field} ${className}`} htmlFor={inputId}>
       <span className={styles.fieldLabel}>{label}</span>
-      {hint ? <span className={styles.fieldHint} id={descriptionId}>{hint}</span> : null}
+      {hint ? <span className={styles.fieldHint} id={hintId}>{hint}</span> : null}
       <textarea
         className={`${styles.input} ${styles.textarea} ${error ? styles.inputError : ''}`}
         id={inputId}
-        aria-describedby={hint || error ? descriptionId : undefined}
+        aria-describedby={describedBy}
         aria-invalid={Boolean(error)}
         {...props}
       />
-      {error ? <span className={styles.fieldError} id={descriptionId}>{error}</span> : null}
+      {error ? <span className={styles.fieldError} id={errorId}>{error}</span> : null}
     </label>
   )
 }

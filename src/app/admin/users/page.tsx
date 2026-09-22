@@ -13,8 +13,17 @@ const users = [
 ]
 
 export default function UsersPage() {
-  const { state } = useDemo()
+  const { state, hydrated } = useDemo()
   const [inviteNotice, setInviteNotice] = useState(false)
+  if (!hydrated) {
+    return (
+      <div className={styles.denied} aria-busy="true" aria-live="polite">
+        <span><UserCircle aria-hidden="true" /></span>
+        <h1>Проверяем доступ…</h1>
+        <p>Подготавливаем рабочее пространство пользователя.</p>
+      </div>
+    )
+  }
   if (state.role !== 'administrator') {
     return (
       <div className={styles.denied}>

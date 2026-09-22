@@ -1,4 +1,6 @@
 .app { min-height: 100dvh; display: grid; grid-template-columns: var(--sidebar-width) minmax(0, 1fr); background: var(--color-canvas); }
+.skipLink { position: fixed; top: var(--space-3); left: var(--space-3); z-index: calc(var(--z-modal) + 2); transform: translateY(calc(-100% - var(--space-4))); border-radius: var(--radius-md); background: var(--color-surface-inverse); color: var(--color-text-inverse); padding: var(--space-3) var(--space-4); font-size: var(--text-sm); font-weight: var(--weight-semibold); text-decoration: none; }
+.skipLink:focus { transform: translateY(0); }
 .sidebar { position: sticky; top: 0; height: 100dvh; display: flex; flex-direction: column; border-right: 1px solid var(--color-border); background: var(--color-surface); padding: var(--space-6) var(--space-4); z-index: var(--z-sticky); }
 .brandRow { display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: var(--space-3); color: var(--color-text); text-decoration: none; padding: 0 var(--space-2); }
@@ -24,6 +26,7 @@
 .demoControls label { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2); }
 .demoControls select { min-width: 0; border: 1px solid var(--color-warning-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); padding: var(--space-1) var(--space-2); font: inherit; }
 .demoControls button { width: fit-content; border: 0; background: transparent; color: inherit; padding: 0; font: inherit; font-weight: var(--weight-semibold); text-decoration: underline; cursor: pointer; }
+.storageWarning { border-top: 1px solid var(--color-warning-border); padding-top: var(--space-2); font-weight: var(--weight-semibold); }
 .mainColumn { min-width: 0; }
 .main { width: min(100%, var(--page-max)); margin: 0 auto; padding: var(--space-10) clamp(var(--space-5), 4vw, var(--space-12)) var(--space-16); }
 .mobileHeader, .mobileSidebar, .mobileBackdrop, .mobileClose { display: none; }
