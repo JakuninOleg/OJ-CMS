@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowLeft, ArrowSquareOut, FloppyDisk, ImageSquare, PaperPlaneTilt, Warning } from '@phosphor-icons/react'
+import { ArrowLeft, FloppyDisk, ImageSquare, PaperPlaneTilt, Warning } from '@phosphor-icons/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -48,8 +48,8 @@ export function PageEditor({ pageId }: { pageId: string }) {
   const displayNotice = notice ?? (
     !dirty && page?.updatedAt === 'только что'
       ? page.status === 'published'
-        ? { tone: 'success' as const, title: 'Страница опубликована', detail: 'Публичная версия обновлена. Её можно открыть в новой вкладке.' }
-        : { tone: 'success' as const, title: 'Черновик сохранён', detail: 'Изменения доступны в предпросмотре и пока не опубликованы.' }
+        ? { tone: 'success' as const, title: 'Страница опубликована', detail: 'Статус материала обновлён в демонстрации.' }
+        : { tone: 'success' as const, title: 'Черновик сохранён', detail: 'Изменения сохранены в демонстрационном рабочем пространстве.' }
       : null
   )
 
@@ -131,7 +131,7 @@ export function PageEditor({ pageId }: { pageId: string }) {
     }
     setSaved(form)
     setSaving(false)
-    setNotice({ tone: 'success', title: 'Черновик сохранён', detail: 'Изменения доступны в предпросмотре и пока не опубликованы.' })
+    setNotice({ tone: 'success', title: 'Черновик сохранён', detail: 'Изменения сохранены в демонстрационном рабочем пространстве.' })
     if (isNew) router.replace(`/admin/pages/${id}`)
     return id
   }, [dispatch, form, isNew, pageId, router, simulateFailure, validate])
@@ -140,7 +140,7 @@ export function PageEditor({ pageId }: { pageId: string }) {
     const id = dirty || isNew ? await persistDraft() : pageId
     if (!id) return
     dispatch({ type: 'page.published', id })
-    setNotice({ tone: 'success', title: 'Страница опубликована', detail: 'Публичная версия обновлена. Её можно открыть в новой вкладке.' })
+    setNotice({ tone: 'success', title: 'Страница опубликована', detail: 'Статус материала обновлён в демонстрации.' })
   }
 
   if (!page && !isNew) {
@@ -158,7 +158,6 @@ export function PageEditor({ pageId }: { pageId: string }) {
         <div className={styles.actions}>
           <span className={styles.saveState} aria-live="polite">{saving ? 'Сохраняем…' : dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены'}</span>
           <Button variant="secondary" onClick={() => void persistDraft()} disabled={saving} icon={<FloppyDisk />}>{saving ? 'Сохранение…' : 'Сохранить черновик'}</Button>
-          <a className={`${styles.previewButton} ${dirty || isNew ? styles.previewDisabled : ''}`} href={dirty || isNew ? undefined : `/preview/${form.slug}`} target="_blank" rel="noreferrer" aria-disabled={dirty || isNew} onClick={(event) => { if (dirty || isNew) event.preventDefault() }}><ArrowSquareOut />Предпросмотр</a>
           <Button onClick={() => void publish()} disabled={saving} icon={<PaperPlaneTilt />}>Опубликовать</Button>
         </div>
       </header>

@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useMemo, useState } from 'react'
 import { useDemo } from '@/components/demo/demo-provider'
 import { Button, EmptyState, Notice, PageHeader } from '@/components/ui/ui'
+import { Modal } from '@/components/ui/modal'
 import { maxDemoImageLabel, validateDemoImage } from '@/lib/demo-media'
 import styles from './media.module.css'
 
@@ -14,6 +15,7 @@ export default function MediaPage() {
   const [selectedId, setSelectedId] = useState(state.media[0]?.id ?? '')
   const [uploadError, setUploadError] = useState('')
   const [uploaded, setUploaded] = useState('')
+  const [deleteOpen, setDeleteOpen] = useState(false)
   const normalized = query.trim().toLocaleLowerCase('ru')
   const results = useMemo(() => state.media.filter((asset) => `${asset.title} ${asset.alt}`.toLocaleLowerCase('ru').includes(normalized)), [normalized, state.media])
   const selected = state.media.find((asset) => asset.id === selectedId)
@@ -61,7 +63,7 @@ export default function MediaPage() {
               <Image src={selected.url} alt="" width={420} height={280} unoptimized />
               <div><span>Файл</span><h2>{selected.title}</h2><p>{selected.size}</p></div>
               <dl><div><dt>Alt-текст</dt><dd>{selected.alt}</dd></div><div><dt>Используется</dt><dd>{selected.usedBy.length ? selected.usedBy.join(', ') : 'Не используется'}</dd></div></dl>
-              {selected.usedBy.length ? <Notice tone="warning" title="Удаление недоступно">Сначала замените изображение в связанных материалах.</Notice> : <Button variant="danger" onClick={() => { dispatch({ type: 'media.removed', id: selected.id }); setSelectedId('') }}>Удалить файл</Button>}
+              {selected.usedBy.length ? <Notice tone="warning" title="Удаление недоступно">Сначала замените изображение в связанных материалах.</Notice> : <Button variant="danger" onClick={() => setDeleteOpen(true)}>Удалить файл</Button>}
             </>
           ) : (
             <div className={styles.noSelection}><ImageSquare aria-hidden="true" /><h2>Выберите файл</h2><p>Здесь появятся его описание и связи.</p></div>
@@ -69,6 +71,7 @@ export default function MediaPage() {
         </aside>
       </div>
       <div className={styles.demoFailure}><Warning aria-hidden="true" /><span>Чтобы проверить ошибку загрузки, выберите файл другого типа или изображение больше {maxDemoImageLabel}.</span></div>
+      {selected ? <Modal open={deleteOpen} onClose={() => setDeleteOpen(false)} title={`Удалить «${selected.title}»?`} description="Это действие нельзя отменить." footer={<><Button variant="secondary" onClick={() => setDeleteOpen(false)}>Отмена</Button><Button variant="danger" onClick={() => { dispatch({ type: 'media.removed', id: selected.id }); setSelectedId(''); setDeleteOpen(false) }}>Удалить файл</Button></>}><p>Файл будет удалён из демонстрационной медиатеки.</p></Modal> : null}
     </>
   )
 }

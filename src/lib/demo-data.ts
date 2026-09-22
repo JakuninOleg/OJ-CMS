@@ -218,10 +218,10 @@ export const initialDemoState: DemoState = {
     },
   ],
   settings: {
-    siteName: 'OJ Studio',
-    phone: '+7 999 123-45-67',
-    email: 'hello@example.ru',
-    address: 'Москва · работаем по всему миру',
+    siteName: 'Демонстрационный проект',
+    phone: '+7 900 000-00-00',
+    email: 'project@example.ru',
+    address: 'Данные настраиваются для каждого проекта',
     navigation: 'Главная\nУслуги\nНовости\nКонтакты',
   },
 }

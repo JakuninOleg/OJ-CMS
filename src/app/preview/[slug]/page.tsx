@@ -1,6 +1,5 @@
-import { PageRenderer } from '@/components/site/page-renderer'
+import { redirect } from 'next/navigation'
 
-export default async function PreviewPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  return <PageRenderer slug={slug} mode="preview" />
+export default function PreviewPage() {
+  redirect('/admin')
 }

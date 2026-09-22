@@ -54,11 +54,13 @@ test('mobile navigation traps focus, closes with escape and opens a collection',
   await expect(dialog).toHaveCount(0)
 })
 
-test('row actions open a preview, help and workspace settings are usable', async ({ page }) => {
+test('dashboard does not expose a fictional public site, help and workspace settings are usable', async ({ page }) => {
   await page.goto('/admin')
+  await expect(page.getByText('Предпросмотр сайта', { exact: true })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Открыть сайт' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Действия: Главная страница' }).click()
-  await page.getByRole('link', { name: 'Предпросмотр', exact: true }).click()
-  await expect(page).toHaveURL(/\/preview\/home$/)
+  await page.getByRole('link', { name: 'Редактировать', exact: true }).click()
+  await expect(page).toHaveURL(/\/admin\/pages\/home$/)
   await page.goto('/admin/help')
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Всё под рукой')
   await page.getByRole('link', { name: 'Открыть медиатеку' }).click()
@@ -67,6 +69,13 @@ test('row actions open a preview, help and workspace settings are usable', async
   await page.getByRole('button', { name: 'Сбросить демо-данные' }).click()
   await page.getByRole('button', { name: 'Отмена' }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
+})
+
+test('legacy public and preview routes return visitors to the CMS demonstration', async ({ page }) => {
+  await page.goto('/site/home')
+  await expect(page).toHaveURL(/\/admin$/)
+  await page.goto('/preview/home')
+  await expect(page).toHaveURL(/\/admin$/)
 })
 
 for (const width of [375, 768, 1280, 1536]) {

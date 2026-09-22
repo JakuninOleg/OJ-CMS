@@ -7,7 +7,7 @@ test.beforeEach(async ({ page }) => {
   await page.reload()
 })
 
-test('saves a draft, previews it, and publishes without leaking the draft publicly', async ({ page }) => {
+test('saves a draft and publishes it inside the CMS demonstration', async ({ page }) => {
   const draftHeading = 'Новый заголовок для проверки публикации'
 
   await page.goto('/admin/pages/home')
@@ -17,18 +17,25 @@ test('saves a draft, previews it, and publishes without leaking the draft public
   await page.reload()
   await expect(page.getByLabel('Заголовок')).toHaveValue(draftHeading)
 
-  await page.goto('/preview/home')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(draftHeading)
-
-  await page.goto('/site/home')
-  await expect(page.getByRole('heading', { level: 1 })).not.toHaveText(draftHeading)
-
-  await page.goto('/admin/pages/home')
   await page.getByRole('button', { name: 'Опубликовать' }).click()
   await expect(page.getByText('Страница опубликована', { exact: true })).toBeVisible()
+  await expect(page.getByText('Статус материала обновлён в демонстрации.', { exact: true })).toBeVisible()
+  await expect(page.locator('span').filter({ hasText: 'Опубликовано' }).first()).toBeVisible()
+})
 
-  await page.goto('/site/home')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(draftHeading)
+test('confirms media deletion and keeps the destructive action readable', async ({ page }) => {
+  await page.goto('/admin/media')
+  await page.getByRole('button', { name: /Точка встречи/ }).click()
+  const deleteButton = page.getByRole('button', { name: 'Удалить файл', exact: true })
+  await expect(deleteButton).toHaveCSS('color', 'rgb(255, 255, 255)')
+  await deleteButton.click()
+  const dialog = page.getByRole('dialog', { name: 'Удалить «Точка встречи»?' })
+  await expect(dialog).toBeVisible()
+  await dialog.getByRole('button', { name: 'Отмена' }).click()
+  await expect(dialog).toHaveCount(0)
+  await deleteButton.click()
+  await dialog.getByRole('button', { name: 'Удалить файл', exact: true }).click()
+  await expect(page.getByRole('button', { name: /Точка встречи/ })).toHaveCount(0)
 })
 
 test('creates and publishes a new news item in one action', async ({ page }) => {

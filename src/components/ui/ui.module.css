@@ -23,8 +23,8 @@
 .secondary:hover:not(:disabled) { background: var(--color-surface-subtle); border-color: var(--color-border-strong); }
 .quiet { background: transparent; color: var(--color-text); }
 .quiet:hover:not(:disabled) { background: var(--color-surface-muted); }
-.danger { background: var(--color-error); color: var(--oj-white); }
-.danger:hover:not(:disabled) { filter: brightness(0.92); }
+.danger { background: #b42318; border-color: #b42318; color: #fff; }
+.danger:hover:not(:disabled) { background: #8d1c13; border-color: #8d1c13; color: #fff; }
 
 .badge {
   display: inline-flex;

@@ -14,8 +14,6 @@ export default function DashboardPage() {
   const [activeRow, setActiveRow] = useState<string | null>(null)
   const rowsRef = useRef<HTMLDivElement>(null)
   const recent = state.pages.slice(0, 4)
-  const home = state.pages.find((page) => page.id === 'home')
-  const homeMedia = state.media.find((asset) => asset.id === home?.published?.mediaId)
   const canManageUsers = state.role === 'administrator'
 
   useEffect(() => {
@@ -71,7 +69,7 @@ export default function DashboardPage() {
                 <div className={styles.rowMeta}><span>{item.updatedAt}</span><small>{item.author}</small></div>
                 <div className={styles.rowActions} data-row-actions onBlur={(event) => { if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) setActiveRow(null) }}>
                   <button type="button" className={styles.moreButton} aria-label={`Действия: ${item.title}`} aria-expanded={activeRow === item.id} onClick={() => setActiveRow(activeRow === item.id ? null : item.id)}><DotsThreeVertical aria-hidden="true" weight="bold" /></button>
-                  {activeRow === item.id ? <div className={styles.rowMenu}><Link href={`/admin/pages/${item.id}`} onClick={() => setActiveRow(null)}>Редактировать</Link><Link href={`/preview/${item.slug}`} onClick={() => setActiveRow(null)}>Предпросмотр</Link>{item.published ? <Link href={`/site/${item.slug}`} onClick={() => setActiveRow(null)}>Открыть на сайте</Link> : null}</div> : null}
+                  {activeRow === item.id ? <div className={styles.rowMenu}><Link href={`/admin/pages/${item.id}`} onClick={() => setActiveRow(null)}>Редактировать</Link></div> : null}
                 </div>
               </div>
             })}
@@ -81,12 +79,7 @@ export default function DashboardPage() {
 
         <section className={styles.help} aria-labelledby="help-title"><BookOpen aria-hidden="true" /><div><h2 id="help-title">Нужна помощь?</h2><p>Откройте документацию или напишите мне.</p></div><Link href="/admin/help">Открыть документацию<ArrowUpRight aria-hidden="true" /></Link></section>
       </div>
-      <aside className={styles.rightColumn} aria-label="Сайт и активность">
-        <section className={styles.siteCard} aria-labelledby="preview-title">
-          <header><h2 id="preview-title">Предпросмотр сайта</h2><Link href="/preview/home" aria-label="Предпросмотр главной страницы"><ArrowUpRight aria-hidden="true" /></Link></header>
-          <Link className={styles.sitePreview} href={home?.published ? '/site/home' : '/preview/home'} aria-label="Открыть главную страницу сайта"><Image src={homeMedia?.url ?? '/images/alpine-house.webp'} alt="Предпросмотр главной страницы" fill sizes="(max-width: 767px) 90vw, 310px" unoptimized /></Link>
-          <p><span className={home?.published ? styles.liveDot : styles.draftDot} />{home?.published ? 'Актуальная версия сайта' : 'Страница ещё не опубликована'}</p>
-        </section>
+      <aside className={styles.rightColumn} aria-label="Последняя активность">
         <section className={styles.activity} aria-labelledby="activity-title">
           <h2 id="activity-title">Последняя активность</h2>
           {recent.map((item) => <Link className={styles.activityItem} href={`/admin/pages/${item.id}`} key={item.id}><span className={styles.activityIcon}><FileText aria-hidden="true" /></span><span><span>{item.author} · {item.title}</span><small>{item.updatedAt}</small></span></Link>)}

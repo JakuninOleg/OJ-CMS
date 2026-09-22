@@ -1,6 +1,5 @@
-import { PageRenderer } from '@/components/site/page-renderer'
+import { redirect } from 'next/navigation'
 
-export default async function PublicPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params
-  return <PageRenderer slug={slug} mode="published" />
+export default function PublicPage() {
+  redirect('/admin')
 }

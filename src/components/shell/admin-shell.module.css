@@ -36,10 +36,6 @@
 .searchField input::placeholder { color: var(--color-text-secondary); }
 .searchField button { display: grid; place-items: center; width: 28px; height: 32px; border: 0; background: transparent; cursor: pointer; color: inherit; }
 .topActions { display: flex; align-items: center; gap: 22px; }
-.openSite { display: inline-flex; align-items: center; justify-content: center; gap: 14px; min-height: 40px; padding: 0 17px; border: 1px solid var(--color-border-strong); border-radius: 8px; color: var(--color-text); text-decoration: none; font-size: 12px; white-space: nowrap; }
-.openSite svg { width: 17px; height: 17px; }
-.openSite:hover { background: var(--color-surface-muted); }
-.topDivider { height: 26px; width: 1px; background: var(--color-border-strong); }
 .profileButton { display: flex; align-items: center; gap: 14px; min-height: 52px; padding: 0; border: 0; background: transparent; color: var(--color-text); cursor: pointer; text-align: left; }
 .avatar { width: 40px; height: 40px; flex-shrink: 0; display: grid; place-items: center; border: 1px solid var(--color-border-strong); border-radius: 50%; background: #e9e7e3; color: #4b4b48; font-size: 12px; letter-spacing: .5px; }
 .profileCopy { min-width: 104px; display: grid; gap: 3px; font-size: 12px; line-height: 1.3; }
@@ -94,7 +90,7 @@
   .main { padding-left: 24px; padding-right: 24px; }
   .topbar { padding-inline: 24px; gap: 16px; }
   .topActions { gap: 12px; }
-  .profileCopy, .profileCaret, .topDivider { display: none; }
+  .profileCopy, .profileCaret { display: none; }
 }
 @media (max-width: 767px) {
   .app, .collapsed { display: block; }
@@ -103,8 +99,7 @@
   .mobileMenu, .mobileLogo { display: inline-grid; }
   .mobileLogo { place-items: center; margin-right: auto; text-decoration: none; }
   .topActions { gap: 6px; }
-  .openSite { font-size: 11px; padding-inline: 10px; gap: 6px; min-height: 36px; }
-  .topDivider, .profileCopy, .profileCaret { display: none; }
+  .profileCopy, .profileCaret { display: none; }
   .profileButton { min-height: 44px; }
   .avatar { width: 34px; height: 34px; }
   .searchArea { order: 4; flex-basis: 100%; }

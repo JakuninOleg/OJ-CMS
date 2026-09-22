@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   allowedDevOrigins: ['127.0.0.1'],
+  async redirects() {
+    return [
+      { source: '/site/:path*', destination: '/admin', permanent: false },
+      { source: '/preview/:path*', destination: '/admin', permanent: false },
+    ]
+  },
   async headers() {
     return [
       {

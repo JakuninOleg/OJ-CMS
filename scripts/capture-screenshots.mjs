@@ -33,7 +33,6 @@ await capture('/admin/pages/home', 'review-editor-tablet-768.png', 768, 1024)
 await capture('/admin/pages/home', 'review-editor-mobile-375.png', 375, 812)
 
 await capture('/admin/media', 'review-media-desktop-1280.png', 1280, 800)
-await capture('/preview/home', 'review-preview-desktop-1280.png', 1280, 800)
 
 await page.setViewportSize({ width: 1280, height: 800 })
 await page.goto(`${baseURL}/admin/pages/home`, { waitUntil: 'domcontentloaded' })

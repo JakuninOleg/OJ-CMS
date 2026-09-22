@@ -63,8 +63,6 @@ export function AdminTopbar({ menuButtonRef, onOpenMenu }: { menuButtonRef: RefO
       </section> : null}
     </div>
     <div className={styles.topActions}>
-      <a className={styles.openSite} href="/site/home" target="_blank" rel="noreferrer">Открыть сайт<ArrowUpRight aria-hidden="true" /></a>
-      <span className={styles.topDivider} />
       <div className={styles.popoverAnchor}>
         <button ref={activityRef} type="button" className={styles.iconButton} aria-label="Последние изменения" aria-expanded={panel === 'activity'} aria-controls={panel === 'activity' ? 'header-activity' : undefined} onClick={() => setPanel(panel === 'activity' ? null : 'activity')}><Bell /></button>
         {panel === 'activity' ? <section id="header-activity" className={styles.popover} aria-label="Последние изменения"><h2>Последние изменения</h2>{documents.slice(0, 4).map((item) => <Link href={item.href} key={item.id} onClick={() => setPanel(null)}><FileText aria-hidden="true" /><span><strong>{item.title}</strong><small>{item.author} · {item.updatedAt}</small></span></Link>)}<p>Демонстрационные данные</p></section> : null}
